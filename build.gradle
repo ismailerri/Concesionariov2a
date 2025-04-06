@@ -1,0 +1,58 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'com.concesionario'
+version = '1.0-SNAPSHOT'
+
+sourceCompatibility = 11
+targetCompatibility = 11
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Base de datos - comentadas temporalmente
+    // implementation 'mysql:mysql-connector-java:8.0.33'
+    // implementation 'org.mongodb:mongodb-driver-sync:4.9.1'
+
+    // Logging
+    implementation 'org.slf4j:slf4j-api:2.0.7'
+    implementation 'ch.qos.logback:logback-classic:1.4.8'
+
+    // Testing
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
+    testImplementation 'org.mockito:mockito-core:5.3.1'
+}
+
+application {
+    mainClass = 'com.concesionario.Main'
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'com.concesionario.Main'
+    }
+
+    // Para crear un fat JAR con todas las dependencias
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+test {
+    useJUnitPlatform()
+}
+
+// Tarea para limpiar, compilar y ejecutar en un solo comando
+task cleanCompileRun(dependsOn: ['clean', 'classes', 'run']) {
+    group = 'build'
+    description = 'Limpia, compila y ejecuta la aplicación'
+}
+run.mustRunAfter classes
+classes.mustRunAfter clean
